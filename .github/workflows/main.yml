@@ -1,0 +1,18 @@
+name: Windows-VPS
+on: workflow_dispatch
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Connect-Ngrok
+      run: |
+        Invoke-WebRequest https://bin.equinox.io/c/4VmD4z7iaB8/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+        Expand-Archive ngrok.zip
+        ./ngrok/ngrok.exe authtoken "37wguRiwUgPjxiL5zbH7Jrd4GqC_4YYBGxVsuEknWTXJgSx93"
+        Start-Process ./ngrok/ngrok.exe -ArgumentList "tcp --region ap 3389"
+    - name: Wait-For-Connection
+      run: |
+        $password = "MyPassword123"
+        net user runneradmin $password
+        while($true){ Start-Sleep -Seconds 3600 }
+
