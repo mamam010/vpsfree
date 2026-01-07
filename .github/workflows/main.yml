@@ -4,15 +4,22 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Connect-Ngrok
+    - name: Download-Ngrok
       run: |
         Invoke-WebRequest https://bin.equinox.io/c/4VmD4z7iaB8/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
         Expand-Archive ngrok.zip
+    - name: Connect-Ngrok
+      run: |
         ./ngrok/ngrok.exe authtoken "37wguRiwUgPjxiL5zbH7Jrd4GqC_4YYBGxVsuEknWTXJgSx93"
         Start-Process ./ngrok/ngrok.exe -ArgumentList "tcp --region ap 3389"
-    - name: Wait-For-Connection
+    - name: Set-Password
       run: |
         $password = "MyPassword123"
         net user runneradmin $password
+    - name: Enable-RDP
+      run: |
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+    - name: Keep-Alive
+      run: |
         while($true){ Start-Sleep -Seconds 3600 }
-
